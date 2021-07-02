@@ -125,15 +125,21 @@
 
 (def rules (concat pawn-moves gen-moves rules-moves moves finish))
 
+
 #_
 (let [board [(piece 'white 'king 0 0)
              ; (piece 'black 'rook 0 7)
              ; (piece 'black 'rook 7 1)
              (piece 'black 'rook 1 7)]]
   (with-open [r (spock/with-rules rules)]
-    (spock/solve {:rules r
-                  :bind {:board board}}
-                 '(finished white :board :ended))))
+    (map :new-board
+         (spock/solve {:rules r
+                       :bind {:piece (piece 'black 'rook 1 7)
+                              :combine combine
+                              :board board}}
+                      '(move :piece (game :_ :board :_) :new-board)))))
+                 ; '(finished white :board :ended))))
+
 
 #_
 (let [board [(piece 'white 'queen 4 3)
@@ -151,35 +157,9 @@
                                '(move :pos (game :_ :board :_) :result)))))))
 
 
-#_
-(let [board [(piece 'black 'pawn 1 0)
-             (piece 'white 'pawn 2 1)
-             (piece 'white 'pawn 3 0)]]
-  (with-open [_ (spock/assert-rules rules)]
-    (try
-      (cons board
-            (mapv :result
-                  (spock/solve {:bind {:board board
-                                       :pos (piece 'black 'pawn 1 0)}}
-                               '(move :pos (game :_ :board :_) :result))))
-      (finally
-        (spock/solve '(retractall (moves :_ :_ :_)))))))
-
-
 (defn- piece [color kind row col]
   (list 'position
         (list 'piece color kind) row col))
-
-(defn available-moves [board row col]
-  (when-let [piece (get-in board [row col])]
-    (let [color (-> piece namespace symbol)
-          kind (-> piece name symbol)]
-      (spock/solve {:bind {:piece kind
-                           :color color
-                           :board board
-                           :row row
-                           :col col}}
-                   '(move (position (piece :color :kind) :row :col) (game :_ :board :_) :res)))))
 
 #_
 (defn gen-chessboard []
@@ -192,47 +172,14 @@
                          pieces
                          (shuffle board))]
     (def last-full-board full-board)
-    (with-open [r (spock/with-rules rules)]
-      (spock/solve {:rules r
-                    :bind {:board full-board}}
-                   '(finished white :board :ended)))))
-
-#_
-(while (empty? (gen-chessboard)))
+    (time
+     (with-open [r (spock/with-rules rules)]
+       (spock/solve {:rules r
+                     :bind {:board full-board}}
+                    '(finished white :board :ended))))))
 
 #_
 last-full-board
-#_
-(let [last-full-board [(piece 'white 'king 0 0)
-                       (piece 'black 'rook 0 7)
-                       ; (piece 'black 'rook 7 1)
-                       (piece 'black 'rook 1 7)]]
-  (time
-   (with-open [r (spock/with-rules rules)]
-     ; (map :new-board)
-     (spock/solve {:rules r
-                   :bind {:board last-full-board}}
-                  '(and (in-check :player :board)
-                        (not (and (member :piece :board)
-                                  (= :piece (position (piece :player :_) :_ :_))
-                                  (move :piece (game :_ :board :_) :new-board)))
-                        (= :end checkmate))))))
-
-; #_
-; (let [board [(piece 'white 'king 0 0)
-;              ; (piece 'black 'rook 0 7)
-;              (piece 'black 'rook 7 1)
-;              (piece 'black 'rook 1 7)]]
-;   (with-open [r (spock/with-rules rules)]
-;     (spock/solve {:rules r
-;                   :bind {:player 'white
-;                          :board board}}
-;                  '(and (not (and (member :piece :board)
-;                                 (= :piece (position (piece :player :_) :_ :_))
-;                                 (move :piece (game :_ :board :_) :_)))
-;                       (= :end stalemate)))))
-;
-; last-full-board
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
