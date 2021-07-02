@@ -113,14 +113,14 @@
 (def finish
   '[(finished [:player :board :end]
               [(in-check :player :board)
-               (member :piece :board)
-               (= :piece (position (piece :player :_) :_ :_))
-               (moves :piece (game :_ :board :_) :_)
+               (not (and (member :piece :board)
+                         (= :piece (position (piece :player :_) :_ :_))
+                         (move :piece (game :_ :board :_) :new-board)))
                (= :end checkmate)])
     (finished [:player :board :end]
-              [(member :piece :board)
-               (= :piece (position (piece :player :_) :_ :_))
-               (not (move :piece (game :_ :board :_) :_))
+              [(not (and (member :piece :board)
+                         (= :piece (position (piece :player :_) :_ :_))
+                         (move :piece (game :_ :board :_) :_)))
                (= :end stalemate)])])
 
 (def rules (concat pawn-moves gen-moves rules-moves moves finish))
@@ -128,7 +128,7 @@
 #_
 (let [board [(piece 'white 'king 0 0)
              ; (piece 'black 'rook 0 7)
-             (piece 'black 'rook 7 1)
+             ; (piece 'black 'rook 7 1)
              (piece 'black 'rook 1 7)]]
   (with-open [r (spock/with-rules rules)]
     (spock/solve {:rules r
@@ -181,6 +181,58 @@
                            :col col}}
                    '(move (position (piece :color :kind) :row :col) (game :_ :board :_) :res)))))
 
+#_
+(defn gen-chessboard []
+  (let [pieces (concat (repeat 8 'pawn)
+                       '[bishop bishop queen king knight knight rook rook])
+        pieces (for [piece pieces, color '[black white]] [color piece])
+        board (for [row (range 8), col (range 8)] [row col])
+        full-board (mapv (fn [[color kind] [row col]]
+                           (piece color kind row col))
+                         pieces
+                         (shuffle board))]
+    (def last-full-board full-board)
+    (with-open [r (spock/with-rules rules)]
+      (spock/solve {:rules r
+                    :bind {:board full-board}}
+                   '(finished white :board :ended)))))
+
+#_
+(while (empty? (gen-chessboard)))
+
+#_
+last-full-board
+#_
+(let [last-full-board [(piece 'white 'king 0 0)
+                       (piece 'black 'rook 0 7)
+                       ; (piece 'black 'rook 7 1)
+                       (piece 'black 'rook 1 7)]]
+  (time
+   (with-open [r (spock/with-rules rules)]
+     ; (map :new-board)
+     (spock/solve {:rules r
+                   :bind {:board last-full-board}}
+                  '(and (in-check :player :board)
+                        (not (and (member :piece :board)
+                                  (= :piece (position (piece :player :_) :_ :_))
+                                  (move :piece (game :_ :board :_) :new-board)))
+                        (= :end checkmate))))))
+
+; #_
+; (let [board [(piece 'white 'king 0 0)
+;              ; (piece 'black 'rook 0 7)
+;              (piece 'black 'rook 7 1)
+;              (piece 'black 'rook 1 7)]]
+;   (with-open [r (spock/with-rules rules)]
+;     (spock/solve {:rules r
+;                   :bind {:player 'white
+;                          :board board}}
+;                  '(and (not (and (member :piece :board)
+;                                 (= :piece (position (piece :player :_) :_ :_))
+;                                 (move :piece (game :_ :board :_) :_)))
+;                       (= :end stalemate)))))
+;
+; last-full-board
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
