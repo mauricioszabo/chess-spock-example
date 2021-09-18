@@ -85,7 +85,7 @@
                 animation-name: fade;
                 animation-duration: 0.5s;
               }"
-              "pre { margin-bottom: 10em;}"
+              "pre { margin-bottom: 4em;}"
               "div.fs {font-size: 2em;
                    padding: 2em;
                    background-color: #222;}
@@ -152,15 +152,71 @@ programmer_of(Language, Name) :-
 * List -> Vector - '[clojure prolog]
 "])
 
+(def chess-slides
+  ["# Let's do a chess board
+
+In Clojure, we would do something like:
+
+```clojure
+(def board
+  [[[:black :rook] [:black :knight] ...]
+   [[:black :pawn] [:black :pawn] ...]])
+```"
+    "# Let's do a chess board
+
+In Prolog, we want to assert facts. There's the \"impure\" way:
+
+```prolog
+assert ( position( piece(black, rook), 0, 0 ) )
+assert ( position( piece(black, knight), 0, 1 ) )
+```
+... or in Spock ...
+```clojure
+(spock/with-rules '[[position [(piece black rook) 0 0]]
+                    [position [(piece black knight) 0 1]]])
+```"
+    "# Let's do a chess board
+
+Or we can use a _list of facts_
+
+```prolog
+Board = [
+  position( piece(black, rook), 0, 0 ),
+  position( piece(black, knight), 0, 1 )
+], move(
+  Piece,
+  game(LastBoard, Board, Flags),
+  NewBoard
+).
+```
+... in Spock ...
+```clojure
+(spock/solve '(and (= :board [(position (piece black rook) 0 0)
+                              (position (piece black knight) 0 0)])
+                   (move :piece (game :last-board :board :flags))
+                   :new-board))
+```"])
+
+
 (defn- prolog-res [res]
   (if (seq res)
-    {:html (into [:div.rows]
-                 (map (fn [fact]
-                        (if (= {} fact)
-                          [:div.title "Yes"]
-                          [:div/clj fact])))
-                 res)}
+    {:html '(into [:div.rows]
+                  (map (fn [fact idx]
+                         [:<>
+                          [:div.title "Result " (inc idx)]
+                          (if (= {} fact)
+                            [:div.title "Yes"]
+                            [:div/clj (walk/prewalk #(if (and (keyword? %)
+                                                              (-> % name first (= "_")))
+                                                       '_
+                                                       %)
+                                                    fact)])
+                          [:div.space]])
+                       ?state (range)))
+     :state res}
     {:html [:div.error "No"]}))
+
+
 
 ;;; -- CUT HERE --
 (slide prolog-slides)
@@ -190,18 +246,41 @@ programmer_of(Language, Name) :-
 #_
 (with-open [r (spock/with-rules '[[person [mauricio 22 [clojure prolog]]]
                                   [person [ariovaldo 27 [ruby perl]]]])]
-  (spock/solve {:rules r}
-               '(and (person :name :_ :languages)
-                     (member :language :languages)
-                     (= :language clojure))))
+  (-> {:rules r}
+      (spock/solve '(and (person :name :_ :languages)
+                         (member :language :languages)
+                         (= :language clojure)))
+      prolog-res))
 
-; (slide rules-in-clj)
+;;; Non-Pure Logic
+;; Clojure
+#_
+(map vector ["a" "b" "c"] [1 2 3 4 5 6])
 
-(def pawn-moves
-  '[(moves [(position (piece black pawn) 1 :col) (game :_ :board :_) :result]
-           [(not (memberchk (position :_ 3 :col) :board))
-            (not (memberchk (position :_ 2 :col) :board))
-            (= :result [3 :col])])])
+#_
+(with-open [r (spock/with-rules '[[combine-v [:first :second :result]]])]
+  (-> {:rules r}
+      (spock/solve '(combine-v ["a" "b" "c"] [1 2 3] :combined))
+      prolog-res))
+
+;; CHESS GAME!
+(slide chess-slides)
+
+#_
+(let [board '[(position (piece black rook) 0 0)
+              (position (piece black knight) 0 1)]]
+  (-> {:bind {:board board}}
+      (spock/solve '(member :member :board))))
+      ; (->> (mapv :member)
+      ;      chessboard)))
+      ; prolog-res))
+
+
+
+;;; Knight
+(def knight-moves
+  '[[moves [(position (piece :color :kind) :row :col)
+            (game :_ :board :_) :move]]])
 
 #_
 (let [board '[(position (piece white queen) 5 5)
