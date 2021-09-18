@@ -260,7 +260,7 @@ Board = [
 #_
 (with-open [r (spock/with-rules '[[combine-v [:first :second :result]]])]
   (-> {:rules r}
-      (spock/solve '(combine-v ["a" "b" "c"] [1 2 3] :combined))
+      (spock/solve '(combine-v ["a" "b" "c"] [1 2 3 4 5 6] :combined))
       prolog-res))
 
 ;; CHESS GAME!
@@ -270,10 +270,10 @@ Board = [
 (let [board '[(position (piece black rook) 0 0)
               (position (piece black knight) 0 1)]]
   (-> {:bind {:board board}}
-      (spock/solve '(member :member :board))))
+      (spock/solve '(member :member :board))
       ; (->> (mapv :member)
       ;      chessboard)))
-      ; prolog-res))
+      prolog-res))
 
 
 
