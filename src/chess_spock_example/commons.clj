@@ -5,24 +5,24 @@
 (def html-for-chess
   '(let [board (->> ?state
                     (map (fn [[_ [_ color kind] row col]]
-                           [[row col] (keyword (str color) (str kind))]))
+                           [[row col] [color kind]]))
                     (into {}))
          board (mapv (fn [row]
                        (mapv (fn [col] (board [row col]))
                              (range 8)))
                      (range 8))
-         pieces {:black/pawn "\u265F"
-                 :black/rook "\u265C"
-                 :black/knight "\u265E"
-                 :black/bishop "\u265D"
-                 :black/queen "\u265B"
-                 :black/king "\u265A"
-                 :white/rook "\u2656"
-                 :white/knight "\u2658"
-                 :white/bishop "\u2657"
-                 :white/queen "\u2655"
-                 :white/king "\u2654"
-                 :white/pawn "\u2659"}
+         pieces {'[black pawn] "\u265F"
+                 '[black rook] "\u265C"
+                 '[black knight] "\u265E"
+                 '[black bishop] "\u265D"
+                 '[black queen] "\u265B"
+                 '[black king] "\u265A"
+                 '[white rook] "\u2656"
+                 '[white knight] "\u2658"
+                 '[white bishop] "\u2657"
+                 '[white queen] "\u2655"
+                 '[white king] "\u2654"
+                 '[white pawn] "\u2659"}
          w-style {:width "35pt" :height "35pt"
                   :background-color "gray"
                   :font-size "20pt"
@@ -31,13 +31,22 @@
          tds (cycle [[:td {:style w-style}] [:td {:style b-style}]])
          light-tds (take 8 (rest tds))
          black-tds (take 8 tds)
-         make-row (fn [col html-col]
+         make-row (fn [row-idx col-idx col html-col]
                     (conj html-col [:a {:href "#" :style {:color "black"}
-                                        :on-click (fn [_] (editor/run-callback :on-copy
-                                                                               (pr-str col)))}
+                                        :on-click (fn [_] (editor/run-callback
+                                                           :on-copy
+                                                           (pr-str
+                                                            (list 'position
+                                                                  (apply list col)
+                                                                  row-idx col-idx))))}
                                     (str (pieces col))]))
-         board (map (fn [row html-row] (map make-row row html-row))
-                    board (cycle [light-tds black-tds]))
+         board (map (fn [row-idx row html-row] (map (partial make-row row-idx)
+                                                    (range)
+                                                    row
+                                                    html-row))
+                    (range)
+                    board
+                    (cycle [light-tds black-tds]))
          html-board (map (fn [tds idx] [:tr [:td (str (- 8 idx))] [:<> tds]]) board (range 8))]
      [:div
       [:table
