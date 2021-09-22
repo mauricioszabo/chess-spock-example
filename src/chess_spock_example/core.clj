@@ -1,5 +1,6 @@
 (ns chess-spock-example.core
-  (:require [spock.swi :as spock])
+  (:require [spock.swi :as spock]
+            [chess-spock-example.commons :as c])
   (:gen-class))
 
 (def pawn-moves
@@ -91,8 +92,8 @@
             (member :result :moves)])])
 
 (def moves
-  '[(other-player [black :other] [(= :other white)])
-    (other-player [white :other] [(= :other black)])
+  '[(other-player [black white])
+    (other-player [white black])
     (in-check [:player :board]
               [(memberchk (position (piece :player king) :k-row :k-col) :board)
                (other-player :player :other)
@@ -206,7 +207,8 @@
         ; (play "Bc4")
         ; (play "Nb4")
         ; (play "Qf7")
-        :board)))
+        :board
+        c/chessboard)))
 
 #_
 (def chess-example
