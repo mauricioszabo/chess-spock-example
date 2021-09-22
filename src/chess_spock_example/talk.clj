@@ -42,11 +42,9 @@
 #_
 (let [board '[(position (piece black rook) 0 0)
               (position (piece black knight) 0 1)]]
-  (-> {:bind {:board board}}
-      (spock/solve '(member :member :board))))
-      ; (->> (mapv :member)
-      ;      chessboard)))
-      ; prolog-res))
+  (->> (spock/solve {:bind {:board board}} '(member :member :board))))
+       ; (mapv :member)
+       ; chessboard))
 
 
 ;; Chessboard moves
