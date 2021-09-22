@@ -69,20 +69,3 @@
        (spock/solve {:rules r :bind {:board chess/initial-board}})
        (mapv :res)
        moves))
-
-#_
-(with-open [rules (spock/with-rules chess/rules)]
-  (->> (spock/solve {:rules rules
-                     :bind {:board chess/initial-board}}
-                    '(and (move :position-piece
-                                (game :_ :board :_)
-                                :new-board)
-                          (member (position :_ 2 2) :new-board)))
-                          ; (member :new-pos :result)))
-                          ; (not (member :new-pos :board))))
-                          ; (= :new-pos (position :_ :new-row :new-col))))
-       (mapv :new-board)
-       moves))
-
-#_
-(chessboard chess/initial-board)
