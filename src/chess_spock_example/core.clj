@@ -266,3 +266,32 @@ last-full-board
         ; (play "Qf7")
         :board
         c/chessboard)))
+
+#_
+(spock/solve {:bind {:board initial-board}}
+             '(and (member :row [0 1 2 3 4 5 6 7])
+                   (member :col [0 1 2 3 4 5 6 7])
+                   (or (and (member (position (piece :color :piece) :row :col) :board)
+                            (atomics_to_string [:color "/" :piece] :to-print-1)
+                            (string_length :to-print-1 :size)
+                            (or (and (> :size 10)
+                                     (sub_string :to-print-1 0 10 :_ :to-print))
+                                (and (or (= :size 10) (< :size 10))
+                                     (= :to-print :to-print-1))))
+                       (and (not (member (position :piece :row :col) :board))
+                            (= :to-print "          ")))
+                   (write :to-print)
+                   (or (and (= :col 7) nl)
+                       (write " | "))))
+
+#_
+(let [pieces (->> initial-board
+                  (map (fn [[_ [_ color piece] row col]]
+                         [[row col] (keyword (str color) (str piece))]))
+                  (into {}))]
+  (doseq [row (range 8)]
+    (doseq [col (range 8)
+            :let [piece (pieces [row col] "")]]
+      (apply print piece (repeat (- 14 (count (str piece)) ) ""))
+      (when-not (= 7 col) (print "| ")))
+    (println)))
