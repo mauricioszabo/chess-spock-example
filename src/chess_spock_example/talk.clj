@@ -66,7 +66,7 @@
 (with-open [r (spock/with-rules chess/rules)]
   (->> '(and (= :res :board))
              ; (move :position (game :_ :board :_) :res))
-       (spock/solve {:rules r :bind {:board (vec (take 8 chess/initial-board))}})
+       (spock/solve {:rules r :bind {:board chess/initial-board}})
        (mapv :res)
        moves))
 
