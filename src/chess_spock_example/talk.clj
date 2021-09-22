@@ -69,3 +69,5 @@
        (spock/solve {:rules r :bind {:board chess/initial-board}})
        (mapv :res)
        moves))
+
+(slide closing-slides)

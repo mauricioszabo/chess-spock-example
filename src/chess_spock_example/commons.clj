@@ -37,7 +37,7 @@
                                                            :on-copy
                                                            (pr-str
                                                             (list 'position
-                                                                  (apply list col)
+                                                                  (apply list 'piece col)
                                                                   row-idx col-idx))))}
                                     (str (pieces col))]))
          board (map (fn [row-idx row html-row] (map (partial make-row row-idx)
@@ -173,8 +173,8 @@ In Clojure, we would do something like:
 
 ```clojure
 (def board
-  [[[:black :rook] [:black :knight] ...]
-   [[:black :pawn] [:black :pawn] ...]])
+  [[:black/rook :black/knight ...]
+   [:black/pawn :black/pawn ...]])
 ```"
     "# Let's do a chess board
 
@@ -211,6 +211,56 @@ Board = [
                    :new-board))
 ```"])
 
+(def closing-slides
+  ["# The best of both worlds
+
+* Clojure makes some very pragmatic decisions on how to add \"impure\" functional code and not look too alien
+* In prolog, \"impure\" logic is still kinda weird
+* So, the best of both worlds!"
+   "# For example...
+```clojure
+(spock/solve {:bind {:board initial-board}}
+             '(and (member :row [0 1 2 3 4 5 6 7])
+                   (member :col [0 1 2 3 4 5 6 7])
+                   (or (and (member (position (piece :color :piece) :row :col) :board)
+                            (atomics_to_string [:color \"/\" :piece] :to-print-1)
+                            (string_length :to-print-1 :size)
+                            (or (and (> :size 10)
+                                     (sub_string :to-print-1 0 10 :_ :to-print))
+                                (and (or (= :size 10) (< :size 10))
+                                     (= :to-print :to-print-1))))
+                       (and (not (member (position :piece :row :col) :board))
+                            (= :to-print \"          \")))
+                   (write :to-print)
+                   (or (and (= :col 7) nl)
+                       (write \" | \"))))
+```"
+   "# To print this:
+```
+ | black/rook | black/knig | black/bish | black/quee | black/king | ...
+ | black/pawn | black/pawn | black/pawn | black/pawn | black/pawn | ...
+ |            |            |            |            |            | ...
+ |            |            |            |            |            | ...
+ |            |            |            |            |            | ...
+ |            |            |            |            |            | ...
+ | white/pawn | white/pawn | white/pawn | white/pawn | white/pawn | ...
+ | white/rook | white/knig | white/bish | white/quee | white/king | ...
+```"
+   "# In Clojure:
+
+```clojure
+(let [pieces (->> initial-board
+                  (map (fn [[_ [_ color piece] row col]]
+                         [[row col] (keyword (str color) (str piece))]))
+                  (into {}))]
+  (doseq [row (range 8)]
+    (doseq [col (range 8)
+            :let [piece (pieces [row col] \"\")]]
+      (apply print piece (repeat (- 14 (count (str piece)) ) \"\"))
+      (when-not (= 7 col) (print \"| \")))
+    (println)))
+```
+* Questions?"])
 
 (defn prolog-res [res]
   (if (seq res)
