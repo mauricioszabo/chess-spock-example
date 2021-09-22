@@ -125,7 +125,8 @@
                          (move :piece (game :_ :board :_) :_)))
                (= :end stalemate)])])
 
-(def rules (concat pawn-moves gen-moves rules-moves moves finish))
+(def moves-rules (concat pawn-moves gen-moves rules-moves moves))
+(def rules (concat finish moves-rules))
 
 (defn- piece [color kind row col]
   (list 'position
@@ -196,19 +197,6 @@
     {:board new-board
      :player new-player}))
 
-#_
-(with-open [r (spock/with-rules rules)]
-  (let [play (partial play r)]
-    (-> {:board initial-board :player 'white}
-        ; (play "e4")
-        ; (play "e5")
-        ; (play "Qf3")
-        ; (play "Na6")
-        ; (play "Bc4")
-        ; (play "Nb4")
-        ; (play "Qf7")
-        :board
-        c/chessboard)))
 
 #_
 (def chess-example
@@ -264,3 +252,17 @@ last-full-board
                                 :bind {:board board
                                        :pos (piece 'white 'king 4 4)}}
                                '(move :pos (game :_ :board :_) :result)))))))
+
+#_
+(with-open [r (spock/with-rules rules)]
+  (let [play (partial play r)]
+    (-> {:board initial-board :player 'white}
+        ; (play "e4")
+        ; (play "e5")
+        ; (play "Qf3")
+        ; (play "Na6")
+        ; (play "Bc4")
+        ; (play "Nb4")
+        ; (play "Qf7")
+        :board
+        c/chessboard)))
