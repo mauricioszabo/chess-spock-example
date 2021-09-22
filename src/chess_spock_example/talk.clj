@@ -59,7 +59,7 @@
                 '(and (gen-lists 5 :rows)))
                       ; (gen-lists 4 :cols)
                       ; (combine :rows :cols :result)))
-   (mapv :result)
+   ; (mapv :result)
    prolog-res))
 
 #_
