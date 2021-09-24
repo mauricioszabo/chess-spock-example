@@ -132,7 +132,7 @@
 * Functional: Here's some data, get me a result
 * Logic: This thing here is true
   * No \"orders\" nor \"transformations\"
-  * Equality, and backtracking (No **cons** and **member** and **insert**)"
+  * Equality, and backtracking"
                     "# Prolog - Facts
 
 ```prolog
