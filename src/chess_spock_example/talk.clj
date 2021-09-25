@@ -71,3 +71,16 @@
        moves))
 
 (slide closing-slides)
+
+
+#_
+(with-open [r (spock/with-rules chess/rules)]
+  (->> '(and (move (position (piece white pawn) 6 5) (game :_ :board :_) :step1))
+             ; (move (position (piece black :_) :_ :_) (game :_ :step1 :_) :step2)
+             ; (move (position (piece white :_) :_ :_) (game :_ :step2 :_) :step3)
+             ; (move (position (piece black :_) :_ :_) (game :_ :step3 :_) :step4)
+             ; (finished white :step4 checkmate))
+       (spock/solve {:rules r :bind {:board chess/initial-board}})
+       first
+       ((juxt :board :step1 :step2 :step3 :step4))
+       moves))
