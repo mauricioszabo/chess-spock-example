@@ -6,7 +6,7 @@
 (slide prolog-slides)
 
 #_
-(spock/solve '(= :age 20))
+(spock/solve '(= 20 20))
 
 #_
 (prolog-res
@@ -70,9 +70,6 @@
        (mapv :res)
        moves))
 
-(slide closing-slides)
-
-
 #_
 (with-open [r (spock/with-rules chess/rules)]
   (->> '(and (move (position (piece white pawn) 6 5) (game :_ :board :_) :step1))
@@ -84,3 +81,5 @@
        first
        ((juxt :board :step1 :step2 :step3 :step4))
        moves))
+
+(slide closing-slides)
