@@ -94,9 +94,9 @@
                 animation-name: fade;
                 animation-duration: 0.5s;
               }"
-              "pre { margin-bottom: 4em;}"
-              "div.fs {font-size: 2em;
-                   padding: 2em;
+              "pre { margin-bottom: 3.8em;}"
+              "div.fs {font-size: 1.8em;
+                   padding: 1.8em;
                    background-color: #222;}
            div.fs pre code {font-size: 3.5em !important;}"]
              [:div.rows.fs {:id "fs"
