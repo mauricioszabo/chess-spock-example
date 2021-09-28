@@ -123,7 +123,7 @@
 
                     "# About:Me
 * Author of Chlorine & Clover
-* Living on Montevideo (we accept clojurians wanting to live here :D)
+* Living on Montevideo, Uruguay
 * Searching for people to help on reviving the idea of a hackable text editor :D"
 
                     "# A brief reminder of Prolog
